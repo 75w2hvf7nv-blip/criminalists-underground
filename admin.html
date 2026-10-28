@@ -3,282 +3,307 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101010">
-<title>Панель керування | Criminalists' Underground</title>
+<title>CU — Admin Panel</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{color-scheme:dark;--bg:#101010;--panel:#1b1b1b;--line:#343434;--text:#eee;--muted:#aaa;--red:#a62d32;--gold:#c6a66a}
+:root{color-scheme:dark;--bg:#101010;--panel:#191919;--line:#35322a;--gold:#d4b36a;--text:#f2eee5;--muted:#a6a096;--red:#e57c75;--green:#8ac6a0}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#29201d 0%,var(--bg) 55%);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 14px calc(24px + env(safe-area-inset-bottom));}
-header{padding:24px 4px 18px;border-bottom:1px solid var(--line);margin-bottom:18px}
-.kicker{color:var(--gold);font-size:11px;letter-spacing:3px;text-transform:uppercase}
-h1{font-size:25px;line-height:1.2;margin:10px 0}
-p{color:var(--muted);line-height:1.5}
-nav{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px}
-button{background:#292929;border:1px solid #444;color:var(--text);border-radius:10px;padding:11px 13px;font-size:14px;cursor:pointer}
-button.primary{background:var(--red);border-color:var(--red)}
-button.active{border-color:var(--gold);color:var(--gold)}
-input,textarea,select{width:100%;background:#121212;color:var(--text);border:1px solid #414141;border-radius:9px;padding:12px;margin:5px 0 12px;font:inherit}
-textarea{min-height:90px;resize:vertical}
-label{display:block;font-size:13px;color:#bbb}
-.card{background:rgba(27,27,27,.96);border:1px solid var(--line);border-radius:14px;padding:15px;margin:0 0 12px}
-.card h3{margin:0 0 8px;font-size:16px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.row button{flex:1}
-.section-title{font-size:18px;margin:8px 0 14px}
-.muted{color:var(--muted);font-size:13px}
-.status{padding:12px;border:1px solid var(--line);border-radius:10px;margin:10px 0 16px;overflow-wrap:anywhere}
+body{margin:0;background:var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:25px 18px 18px;border-bottom:1px solid var(--line);background:#141414}
+.eyebrow{color:var(--gold);font-size:11px;letter-spacing:3px;text-transform:uppercase}
+h1{font-size:24px;margin:9px 0 5px}
+.sub{color:var(--muted);font-size:13px}
+main{max-width:850px;margin:auto;padding:18px 14px 45px}
+.status{padding:13px;border:1px solid var(--line);border-radius:10px;color:var(--muted);margin-bottom:16px;overflow-wrap:anywhere}
+.status.error{border-color:#743c38;color:var(--red)}
+.status.ok{color:var(--green)}
+nav{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px}
+button,.btn{border:1px solid var(--line);background:#222;color:var(--text);padding:11px 14px;border-radius:8px;font-size:14px;cursor:pointer}
+button:disabled{opacity:.45;cursor:wait}
+button.active,.primary{background:var(--gold);color:#17130b;border-color:var(--gold);font-weight:700}
+.danger{border-color:#743c38;color:#ffaaa3}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+h2{font-size:18px;margin:0 0 13px}
+h3{font-size:15px;margin:0 0 8px}
+label{display:block;color:var(--muted);font-size:13px;margin:13px 0 6px}
+input,textarea,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:#101010;color:var(--text);font:inherit}
+textarea{min-height:110px;resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.item{padding:13px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item-title{font-weight:650;overflow-wrap:anywhere}
+.item-meta{font-size:12px;color:var(--muted);margin:5px 0 10px;overflow-wrap:anywhere}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;color:#d7d0c3}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
 .hidden{display:none!important}
-hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:600px){.grid{grid-template-columns:1fr 1fr}}
+footer{text-align:center;color:#777;font-size:11px;padding:20px}
 </style>
 </head>
 <body>
 <header>
-<div class="kicker">Private administration</div>
-<h1>CRIMINALISTS' UNDERGROUND</h1>
-<p>Панель керування спільнотою</p>
+  <div class="eyebrow">Criminalists’ Underground</div>
+  <h1>Адмін-панель</h1>
+  <div class="sub">Керування спільнотою</div>
 </header>
+<main>
+  <div id="status" class="status">Перевірка авторизації…</div>
 
-<div id="status" class="status">Перевірка підключення…</div>
+  <section id="login" class="panel hidden">
+    <h2>Вхід через Telegram</h2>
+    <p id="login-message">Відкрий цю панель з Telegram Mini App.</p>
+    <button class="primary" onclick="location.reload()">Спробувати знову</button>
+  </section>
 
-<nav id="nav">
-<button class="active" data-tab="rules">Правила</button>
-<button data-tab="news">Новини</button>
-<button data-tab="admins">Адміністратори</button>
-<button data-tab="stats">Статистика</button>
-<button data-tab="audit">Журнал дій</button>
-</nav>
+  <section id="app" class="hidden">
+    <nav>
+      <button class="active" data-tab="rules">Правила</button>
+      <button data-tab="news">Новини</button>
+      <button data-tab="config">Налаштування</button>
+      <button data-tab="stats">Статистика</button>
+      <button data-tab="audit">Журнал</button>
+    </nav>
 
-<section id="rules" class="tab">
-<h2 class="section-title">Правила та покарання</h2>
-<div id="rules-list"></div>
-<div class="card">
-<h3>Додати правило</h3>
-<label>Назва</label><input id="rule-title" placeholder="Наприклад, Заборона спаму">
-<label>Опис</label><textarea id="rule-description" placeholder="Опишіть правило"></textarea>
-<label>Покарання</label><input id="rule-punishment" placeholder="Попередження або блокування">
-<button class="primary" id="add-rule">Додати правило</button>
-</div>
-</section>
+    <section id="view-rules" class="view">
+      <div class="panel">
+        <h2>Правила спільноти</h2>
+        <p class="small">Перегляд правил та доступних записів API.</p>
+        <div class="actions">
+          <button class="primary" onclick="loadSection('rules')">Оновити список</button>
+          <button onclick="newRecord('rules')">+ Нове правило</button>
+        </div>
+      </div>
+      <div id="list-rules" class="panel">Завантаження…</div>
+      <div id="editor-rules" class="panel hidden"></div>
+    </section>
 
-<section id="news" class="tab hidden">
-<h2 class="section-title">Стрічка новин</h2>
-<div id="news-list"></div>
-<div class="card">
-<h3>Опублікувати новину</h3>
-<textarea id="news-text" placeholder="Текст оголошення"></textarea>
-<button class="primary" id="add-news">Додати новину</button>
-</div>
-<div class="card">
-<h3>Текст головної стрічки</h3>
-<textarea id="ticker" placeholder="Текст для головної сторінки"></textarea>
-<button class="primary" id="save-ticker">Зберегти текст</button>
-</div>
-</section>
+    <section id="view-news" class="view hidden">
+      <div class="panel">
+        <h2>Новини</h2>
+        <div class="actions">
+          <button class="primary" onclick="loadSection('news')">Оновити список</button>
+          <button onclick="newRecord('news')">+ Нова новина</button>
+        </div>
+      </div>
+      <div id="list-news" class="panel">Завантаження…</div>
+      <div id="editor-news" class="panel hidden"></div>
+    </section>
 
-<section id="admins" class="tab hidden">
-<h2 class="section-title">Адміністратори</h2>
-<p class="muted">Додавання доступне лише власнику. Введи числовий Telegram ID.</p>
-<div id="admins-list"></div>
-<div class="card">
-<h3>Додати адміністратора</h3>
-<label>Telegram ID</label><input id="admin-id" inputmode="numeric" placeholder="123456789">
-<label>Роль</label>
-<select id="admin-role"><option value="moderator">Модератор</option><option value="admin">Адміністратор</option></select>
-<button class="primary" id="add-admin">Зберегти адміністратора</button>
-</div>
-</section>
+    <section id="view-config" class="view hidden">
+      <div class="panel">
+        <h2>Налаштування</h2>
+        <p class="small">Значення завантажуються з API. Збереження залежить від підтримуваного маршруту сервера.</p>
+        <button class="primary" onclick="loadSection('config')">Завантажити налаштування</button>
+        <div id="list-config"></div>
+      </div>
+    </section>
 
-<section id="stats" class="tab hidden">
-<h2 class="section-title">Статистика за 7 днів</h2>
-<div id="stats-list"></div>
-<p class="muted">Показники відображають дані, які сервер записав у базу. Без підключення Telegram-бота події можуть бути відсутні.</p>
-</section>
+    <section id="view-stats" class="view hidden">
+      <div class="panel">
+        <h2>Статистика</h2>
+        <button class="primary" onclick="loadSection('stats')">Оновити статистику</button>
+        <pre id="list-stats">Натисни «Оновити статистику».</pre>
+      </div>
+    </section>
 
-<section id="audit" class="tab hidden">
-<h2 class="section-title">Журнал дій</h2>
-<div id="audit-list"></div>
-</section>
-
+    <section id="view-audit" class="view hidden">
+      <div class="panel">
+        <h2>Журнал дій</h2>
+        <button class="primary" onclick="loadSection('audit')">Оновити журнал</button>
+        <pre id="list-audit">Натисни «Оновити журнал».</pre>
+      </div>
+    </section>
+    <footer>Criminalists’ Underground · Admin</footer>
+  </section>
+</main>
 <script>
+"use strict";
+
 const API = "https://criminalists-api.frbzh5vwgr.workers.dev";
 const tg = window.Telegram?.WebApp;
 tg?.ready();
 tg?.expand();
 
-const statusEl = document.getElementById("status");
-function setStatus(text){statusEl.textContent=text;}
+const $ = id => document.getElementById(id);
+const state = {records:{rules:[],news:[]}, editing:null};
+const endpoints = {
+  rules:{list:"/api/rules",admin:"/api/admin/rules",title:"Правило"},
+  news:{list:"/api/news",admin:"/api/admin/news",title:"Новина"}
+};
+
+function status(message,type=""){
+  const el=$("status");
+  el.textContent=message;
+  el.className="status "+type;
+}
 function initData(){return tg?.initData || "";}
+
 async function api(path, options={}){
   const data=initData();
-  if(!data) throw new Error("Відкрий панель через Telegram Mini App, щоб увійти.");
-  const res=await fetch(API+path,{
-    ...options,
-    headers:{
-      "Content-Type":"application/json",
-      "X-Telegram-Init-Data":data,
-      ...(options.headers||{})
-    }
-  });
-  const body=await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(body.error || ("Помилка HTTP "+res.status));
+  if(!data) throw new Error("Відкрий адмін-панель через Telegram Mini App, а не в Safari.");
+  const headers={"X-Telegram-Init-Data":data,...(options.headers||{})};
+  if(options.body && !headers["Content-Type"]) headers["Content-Type"]="application/json";
+  const res=await fetch(API+path,{...options,headers});
+  const raw=await res.text();
+  let body={};
+  try{body=raw?JSON.parse(raw):{};}catch{body={message:raw};}
+  if(!res.ok) throw new Error(body.error||body.message||("Помилка HTTP "+res.status));
   return body;
 }
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function card(title,body,buttons=""){
-  return `<div class="card"><h3>${esc(title)}</h3><p>${body}</p>${buttons}</div>`;
+function unwrap(body){
+  if(Array.isArray(body)) return body;
+  for(const k of ["items","data","rules","news","results"])
+    if(Array.isArray(body?.[k])) return body[k];
+  return body;
 }
-function button(label,action,kind=""){
-  return `<button class="${kind}" data-action="${action}">${esc(label)}</button>`;
+function safe(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
 }
-
-async function loadRules(){
-  const rows=await api("/api/admin/rules");
-  document.getElementById("rules-list").innerHTML=rows.map(r=>card(
-    r.title,
-    `<label>Назва</label><input id="rt-${r.id}" value="${esc(r.title)}">
-     <label>Опис</label><textarea id="rd-${r.id}">${esc(r.description)}</textarea>
-     <label>Покарання</label><input id="rp-${r.id}" value="${esc(r.punishment)}">
-     <label>Порядок сортування</label><input id="ro-${r.id}" type="number" value="${Number(r.sort_order)||0}">
-     <div class="row">${button("Зберегти","save-rule-"+r.id,"primary")}${button("Видалити","delete-rule-"+r.id)}</div>`
-  )).join("") || "<p>Правил поки немає.</p>";
+function pretty(value){
+  try{return JSON.stringify(value,null,2)}catch{return String(value)}
 }
-
-async function loadNews(){
-  const rows=await api("/api/admin/news");
-  document.getElementById("news-list").innerHTML=rows.map(n=>card(
-    "Новина №"+n.id,
-    `<textarea id="nt-${n.id}">${esc(n.text)}</textarea>
-     <div class="row">${button("Зберегти","save-news-"+n.id,"primary")}${button("Видалити","delete-news-"+n.id)}</div>`
-  )).join("") || "<p>Новин поки немає.</p>";
-  const config=await api("/api/config");
-  document.getElementById("ticker").value=config.news_ticker||"";
+function showApp(){
+  $("login").classList.add("hidden");
+  $("app").classList.remove("hidden");
+}
+function showLogin(message){
+  $("login").classList.remove("hidden");
+  $("app").classList.add("hidden");
+  $("login-message").textContent=message;
 }
 
-async function loadAdmins(){
-  const rows=await api("/api/admin/admins");
-  document.getElementById("admins-list").innerHTML=rows.map(a=>card(
-    "Telegram ID: "+a.telegram_id,
-    `Роль: ${esc(a.role)} · ${a.enabled ? "Активний" : "Вимкнений"}`,
-    button("Видалити","delete-admin-"+a.telegram_id)
-  )).join("") || "<p>Доданих адміністраторів немає.</p>";
-}
-
-async function loadStats(){
-  const rows=await api("/api/admin/stats");
-  document.getElementById("stats-list").innerHTML=rows.map(r=>card(
-    r.day,
-    `Повідомлення: ${r.messages}<br>Приєдналися: ${r.members_joined}<br>Вийшли: ${r.members_left}`
-  )).join("") || "<p>Статистика поки відсутня.</p>";
-}
-
-async function loadAudit(){
-  const rows=await api("/api/admin/audit");
-  document.getElementById("audit-list").innerHTML=rows.map(r=>card(
-    r.action+" · "+r.created_at,
-    `Адміністратор: ${esc(r.actor_id)}<br>${esc(r.details)}`
-  )).join("") || "<p>Записів поки немає.</p>";
-}
-
-async function loadAll(){
+async function boot(){
+  if(!initData()){
+    status("Потрібен запуск через Telegram Mini App","error");
+    showLogin("Відкрий адмін-панель усередині Telegram. Самого відкриття URL в Safari недостатньо.");
+    return;
+  }
   try{
+    status("Перевіряємо права адміністратора…");
+    // Доступ дозволяє тільки серверна перевірка.
     const me=await api("/api/admin/me");
-    setStatus("Вхід виконано: "+(me.username?"@"+me.username:me.first_name)+" · Роль: "+me.role);
-    await loadRules();
-    await loadNews();
-    if(me.role==="owner") await loadAdmins();
-    else document.getElementById("admins").innerHTML="<h2>Доступ лише власнику</h2>";
-    await loadStats();
-    await loadAudit();
+    showApp();
+    status("Авторизацію підтверджено. Завантаження даних…","ok");
+    await loadSection("rules");
+    status("Вхід виконано. Перевіряй повідомлення про помилки для кожного розділу.","ok");
   }catch(e){
-    setStatus(e.message);
+    status("Не вдалося увійти: "+e.message,"error");
+    showLogin("Сервер не підтвердив доступ адміністратора. Перевір права адміністратора в API та повтори вхід.");
   }
 }
 
-document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{
-  document.querySelectorAll(".tab").forEach(s=>s.classList.add("hidden"));
-  document.getElementById(b.dataset.tab).classList.remove("hidden");
-  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));
-}));
-
-document.body.addEventListener("click",async e=>{
-  const b=e.target.closest("[data-action]");
-  if(!b)return;
-  const action=b.dataset.action;
-  try{
-    if(action.startsWith("save-rule-")){
-      const id=action.split("-").pop();
-      await api("/api/admin/rules/"+id,{method:"PUT",body:JSON.stringify({
-        title:document.getElementById("rt-"+id).value,
-        description:document.getElementById("rd-"+id).value,
-        punishment:document.getElementById("rp-"+id).value,
-        sort_order:Number(document.getElementById("ro-"+id).value),
-        enabled:true
-      })});
-      await loadRules();setStatus("Правило збережено.");
-    }else if(action.startsWith("delete-rule-")){
-      const id=action.split("-").pop();
-      if(!confirm("Видалити це правило?"))return;
-      await api("/api/admin/rules/"+id,{method:"DELETE"});await loadRules();
-    }else if(action.startsWith("save-news-")){
-      const id=action.split("-").pop();
-      await api("/api/admin/news/"+id,{method:"PUT",body:JSON.stringify({text:document.getElementById("nt-"+id).value,enabled:true})});
-      await loadNews();setStatus("Новину збережено.");
-    }else if(action.startsWith("delete-news-")){
-      const id=action.split("-").pop();
-      if(!confirm("Видалити новину?"))return;
-      await api("/api/admin/news/"+id,{method:"DELETE"});await loadNews();
-    }else if(action.startsWith("delete-admin-")){
-      const id=action.slice("delete-admin-".length);
-      if(!confirm("Видалити адміністратора?"))return;
-      await api("/api/admin/admins/"+id,{method:"DELETE"});await loadAdmins();
-    }
-  }catch(err){setStatus(err.message);}
+document.querySelectorAll("[data-tab]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b===btn));
+    document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+    $("view-"+btn.dataset.tab).classList.remove("hidden");
+  });
 });
 
-document.getElementById("add-rule").onclick=async()=>{
+async function loadSection(kind){
   try{
-    await api("/api/admin/rules",{method:"POST",body:JSON.stringify({
-      title:document.getElementById("rule-title").value,
-      description:document.getElementById("rule-description").value,
-      punishment:document.getElementById("rule-punishment").value
-    })});
-    document.getElementById("rule-title").value="";
-    document.getElementById("rule-description").value="";
-    document.getElementById("rule-punishment").value="";
-    await loadRules();setStatus("Правило додано.");
-  }catch(e){setStatus(e.message);}
-};
+    status("Завантаження: "+kind+"…");
+    if(kind==="rules"||kind==="news"){
+      const body=await api(endpoints[kind].list);
+      const items=unwrap(body);
+      if(!Array.isArray(items)) throw new Error("API повернув не список. Перевір формат відповіді.");
+      state.records[kind]=items;
+      renderList(kind,items);
+    }else if(kind==="config"){
+      const body=await api("/api/config");
+      $("list-config").innerHTML="<pre>"+safe(pretty(unwrap(body)))+"</pre>";
+    }else if(kind==="stats"){
+      const body=await api("/api/admin/stats");
+      $("list-stats").textContent=pretty(unwrap(body));
+    }else if(kind==="audit"){
+      const body=await api("/api/admin/audit");
+      $("list-audit").textContent=pretty(unwrap(body));
+    }
+    status("Дані отримано: "+kind,"ok");
+  }catch(e){
+    status("Помилка («"+kind+"»): "+e.message,"error");
+    const target=$("list-"+kind);
+    if(target) target.innerHTML="<p>"+safe(e.message)+"</p><p class='small'>Маршрут може бути відсутнім або мати інший формат у поточному Worker.</p>";
+  }
+}
 
-document.getElementById("add-news").onclick=async()=>{
+function renderList(kind,items){
+  const root=$("list-"+kind);
+  if(!items.length){
+    root.innerHTML="<p>Записів немає або список порожній.</p>";
+    return;
+  }
+  root.innerHTML=items.map((item,i)=>{
+    const title=item.title||item.name||item.label||item.heading||("Запис "+(i+1));
+    const id=item.id??item.rule_id??item.news_id??"";
+    return `<div class="item">
+      <div class="item-title">${safe(title)}</div>
+      <div class="item-meta">ID: ${safe(id||"не вказано")}</div>
+      <details><summary>Переглянути дані</summary><pre>${safe(pretty(item))}</pre></details>
+      <div class="actions">
+        <button onclick="editRecord('${kind}',${i})">Переглянути / редагувати JSON</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function newRecord(kind){
+  openEditor(kind,{},null);
+}
+function editRecord(kind,index){
+  openEditor(kind,state.records[kind][index],index);
+}
+function openEditor(kind,item,index){
+  state.editing={kind,index,item};
+  const root=$("editor-"+kind);
+  root.classList.remove("hidden");
+  root.innerHTML=`
+    <h2>${index===null?"Новий запис":"Редагування запису"}</h2>
+    <p class="small">JSON має відповідати схемі, яку очікує твій API. Не зберігай зміни, доки не перевіриш поля.</p>
+    <label>Дані запису (JSON)</label>
+    <textarea id="record-json" autocapitalize="off" spellcheck="false">${safe(pretty(item))}</textarea>
+    <div class="actions">
+      <button class="primary" onclick="saveRecord()">Зберегти через API</button>
+      <button onclick="closeEditor('${kind}')">Скасувати</button>
+    </div>
+    <p class="small">Якщо сервер поверне помилку, нічого не буде вважатися збереженим.</p>`;
+  root.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeEditor(kind){
+  $("editor-"+kind).classList.add("hidden");
+  state.editing=null;
+}
+async function saveRecord(){
+  const edit=state.editing;
+  if(!edit) return;
+  let record;
+  try{record=JSON.parse($("record-json").value);}
+  catch{status("JSON має синтаксичну помилку. Перевір дужки та лапки.","error");return;}
+  const {kind,index}=edit;
+  const id=record.id??record.rule_id??record.news_id;
+  // Не вгадуємо метод та маршрут зміни запису: їх потрібно звірити з Worker.
+  status("Перевірка маршруту збереження…");
   try{
-    await api("/api/admin/news",{method:"POST",body:JSON.stringify({text:document.getElementById("news-text").value})});
-    document.getElementById("news-text").value="";
-    await loadNews();setStatus("Новину додано.");
-  }catch(e){setStatus(e.message);}
-};
+    const route=endpoints[kind].admin;
+    const method=index===null?"POST":"PUT";
+    const url=index===null?route:route+"/"+encodeURIComponent(id);
+    if(index!==null && (id===undefined||id===null||id===""))
+      throw new Error("У записі немає ID. Не можна безпечно визначити адресу оновлення.");
+    await api(url,{method,body:JSON.stringify(record)});
+    status("Сервер підтвердив збереження.","ok");
+    closeEditor(kind);
+    await loadSection(kind);
+  }catch(e){
+    status("Не вдалося зберегти: "+e.message,"error");
+  }
+}
 
-document.getElementById("save-ticker").onclick=async()=>{
-  try{
-    await api("/api/admin/config",{method:"PUT",body:JSON.stringify({news_ticker:document.getElementById("ticker").value})});
-    setStatus("Текст стрічки збережено.");
-  }catch(e){setStatus(e.message);}
-};
-
-document.getElementById("add-admin").onclick=async()=>{
-  try{
-    await api("/api/admin/admins",{method:"POST",body:JSON.stringify({
-      telegram_id:document.getElementById("admin-id").value.trim(),
-      role:document.getElementById("admin-role").value
-    })});
-    document.getElementById("admin-id").value="";
-    await loadAdmins();setStatus("Адміністратора збережено.");
-  }catch(e){setStatus(e.message);}
-};
-
-loadAll();
+boot();
 </script>
 </body>
 </html>
-
