@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08090b">
+<title>Criminalists' Underground — Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#08090b;--panel:#111317;--panel2:#17191f;--line:#2b2d34;--red:#d21f32;--red2:#ff3548;--muted:#9b9da6;--text:#f4f4f6;--gold:#c7a66a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{overflow-x:hidden}
+body:before{content:"";position:fixed;inset:-20%;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 15% 18%,rgba(210,31,50,.13),transparent 35%),radial-gradient(ellipse at 88% 60%,rgba(110,18,28,.13),transparent 38%),linear-gradient(135deg,#08090b,#0b0c10 55%,#09090b);animation:ambient 14s ease-in-out infinite alternate}
+@keyframes ambient{from{transform:translate3d(-1%,0,0) scale(1)}to{transform:translate3d(1%,1%,0) scale(1.05)}}
+button{font:inherit;color:inherit;cursor:pointer}.app{position:relative;z-index:1;max-width:520px;margin:0 auto;min-height:100dvh;padding:calc(16px + env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{display:flex;gap:11px;align-items:center}.sigil{height:42px;width:42px;border:1px solid #57232b;background:linear-gradient(145deg,#241014,#0e0e11);border-radius:14px;display:grid;place-items:center;color:var(--red2);font-size:20px;box-shadow:0 0 25px #d21f3218}.brand-title{font-size:14px;font-weight:750;letter-spacing:.02em}.brand-sub{font-size:11px;color:var(--muted);margin-top:3px}.status{font-size:11px;color:#d2a4a8;border:1px solid #49242a;background:#1a0f12;padding:7px 10px;border-radius:99px}
+.page{display:none;animation:enter .28s ease both}.page.active{display:block}@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.hero{position:relative;overflow:hidden;border:1px solid #332329;border-radius:24px;padding:25px 20px 22px;background:linear-gradient(145deg,rgba(35,20,24,.95),rgba(14,15,18,.97) 58%,rgba(26,13,17,.95));min-height:235px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 18px 55px #0008}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;pointer-events:none}.hero:before{width:210px;height:210px;right:-65px;top:-80px;border:1px solid #7a2936;box-shadow:0 0 0 18px #a51c2a0b,0 0 0 40px #a51c2a08, inset 0 0 35px #e22a3a15;animation:orbit 16s linear infinite}.hero:after{width:115px;height:115px;right:5px;top:-30px;background:radial-gradient(circle at 30% 25%,#5c3037,#171216 55%,#08090b);border:1px solid #7b303b;box-shadow:inset -15px -15px 25px #000,0 0 35px #cf1e3220}
+@keyframes orbit{to{transform:rotate(360deg)}}.hero>*{position:relative;z-index:1}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.19em;color:#d78a92}.hero h1{font-size:clamp(26px,7vw,34px);line-height:1.07;margin:18px 0 9px;max-width:310px;letter-spacing:-.04em}.hero p{color:#b6b2b7;font-size:13px;line-height:1.55;max-width:320px;margin:0 0 18px}.primary{border:1px solid #ef3446;border-radius:13px;background:linear-gradient(100deg,#9c1527,#e0263b 65%,#9e1729);padding:14px 16px;font-weight:700;font-size:13px;box-shadow:0 7px 25px #d21f3225;transition:transform .18s,filter .18s}.primary:active,.tile:active,.nav button:active{transform:scale(.98)}.secondary{border:1px solid var(--line);border-radius:13px;background:#14161b;padding:13px 14px;font-weight:600;font-size:13px}
+.section-title{font-size:17px;margin:23px 0 12px;letter-spacing:-.02em}.muted{color:var(--muted)}.ticker{margin-top:14px;border:1px solid #382127;background:#130e11;border-radius:13px;overflow:hidden;padding:11px 0;white-space:nowrap;color:#e7b5ba;font-size:12px}.ticker span{display:inline-block;padding-left:100%;animation:ticker 20s linear infinite}@keyframes ticker{to{transform:translateX(-100%)}}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tile{display:flex;gap:11px;align-items:center;text-align:left;padding:14px 12px;border:1px solid #292c33;background:linear-gradient(145deg,#17191f,#0e1014);border-radius:16px;min-height:78px;transition:transform .18s,border-color .18s}.tile:active{border-color:#9c2634}.tile-icon{height:38px;width:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:12px;background:#241318;color:#ff5261;border:1px solid #4a242d;font-size:17px}.tile strong{display:block;font-size:13px}.tile small{display:block;color:var(--muted);font-size:10px;margin-top:5px;line-height:1.3}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{border:1px solid var(--line);background:linear-gradient(145deg,#17191f,#101115);padding:15px;border-radius:16px}.stat label{display:block;color:var(--muted);font-size:11px}.stat b{display:block;font-size:24px;margin:8px 0 4px;letter-spacing:-.04em}.stat small{font-size:10px;color:#b87981}
+.headrow{display:flex;align-items:center;gap:10px;margin-bottom:18px}.back{border:1px solid var(--line);background:#121419;border-radius:11px;padding:9px 12px;font-size:12px}.headrow h2{font-size:18px;margin:0}.card{border:1px solid var(--line);background:linear-gradient(145deg,#16181d,#0f1014);border-radius:17px;padding:15px;margin-bottom:10px}.card h3{font-size:14px;margin:0 0 8px}.card p{font-size:12px;line-height:1.55;color:#b8b8c0;margin:0}.profile{text-align:center;padding:24px 18px}.avatar{height:88px;width:88px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;background:radial-gradient(circle at 35% 25%,#4b2930,#141116 65%);border:2px solid #852534;box-shadow:0 0 0 7px #7b1b2917,0 0 35px #d21f3220;font-size:31px}.profile h2{margin:0 0 5px;font-size:21px}.profile .tag{color:#e47a85;font-size:13px}.profile .id{color:var(--muted);font-size:11px;margin-top:7px}.rule{padding:0;overflow:hidden}.rule button{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;background:transparent;border:0;padding:16px;font-weight:650;font-size:13px}.rule .rulebody{display:none;padding:0 16px 16px}.rule.open .rulebody{display:block;animation:enter .2s ease}.punishment{border-left:2px solid var(--red);padding:9px 0 9px 12px;margin-top:12px;color:#e3b0b5;font-size:11px;line-height:1.7}.admin-row{display:flex;align-items:center;gap:12px}.mini-avatar{height:42px;width:42px;border-radius:50%;display:grid;place-items:center;background:#2b1a1e;border:1px solid #69303a;color:#ff8b96}.admin-row b{display:block;font-size:12px}.admin-row small{color:var(--muted);font-size:11px;display:block;margin-top:4px}.admin-tag{margin-left:auto;color:#d5ac70;font-size:10px}.bottom-nav{position:fixed;z-index:5;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#0c0d10ed;backdrop-filter:blur(18px);border-top:1px solid #292b31}.bottom-nav button{border:0;background:transparent;color:#777b85;font-size:10px;padding:7px 2px;border-radius:10px}.bottom-nav button span{display:block;font-size:17px;margin-bottom:5px}.bottom-nav button.active{color:#ff4b5d;background:#281116}.field{width:100%;background:#0b0c0f;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text);font:inherit;font-size:12px;margin:7px 0 12px}.note{font-size:10px;color:#8e9098;line-height:1.5;margin-top:12px}.news-item{display:flex;gap:12px;align-items:flex-start}.news-icon{font-size:19px;color:#ff5261}.footer{text-align:center;color:#5e6068;font-size:10px;padding:20px 0 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="sigil">♛</div><div><div class="brand-title">Criminalists' Underground</div><div class="brand-sub">Простір спільноти</div></div></div>
+    <div class="status">● ONLINE</div>
+  </header>
+
+  <main>
+    <section class="page active" id="home">
+      <div class="hero">
+        <div class="eyebrow">Закрита спільнота · Telegram</div>
+        <div><h1>Тут діють<br>свої правила.</h1><p>Місце для спілкування, довіри та характеру. Ознайомся з правилами й будь частиною спільноти.</p></div>
+        <button class="primary" onclick="openChat()">Зайти в чат ↗</button>
+      </div>
+      <div class="ticker"><span id="tickerText">✦ Вітаємо у спільноті · Ознайомся з правилами · Поважай інших учасників · </span></div>
+      <h3 class="section-title">Швидкий доступ</h3>
+      <div class="tiles">
+        <button class="tile" onclick="go('profile')"><span class="tile-icon">♙</span><span><strong>Профіль</strong><small>Твоя інформація</small></span></button>
+        <button class="tile" onclick="go('rules')"><span class="tile-icon">≡</span><span><strong>Правила</strong><small>Порядок у чаті</small></span></button>
+        <button class="tile" onclick="go('about')"><span class="tile-icon">⌂</span><span><strong>Про чат</strong><small>Спільнота й адміни</small></span></button>
+        <button class="tile" onclick="go('stats')"><span class="tile-icon">▥</span><span><strong>Статистика</strong><small>Активність спільноти</small></span></button>
+      </div>
+      <h3 class="section-title">Стан спільноти</h3>
+      <div class="stats"><div class="stat"><label>Учасники</label><b id="members">—</b><small>Підключимо Telegram API</small></div><div class="stat"><label>Повідомлення сьогодні</label><b id="messages">—</b><small>Після налаштування webhook</small></div></div>
+      <div class="footer">CRIMINALISTS' UNDERGROUND · ТІЛЬКИ СВОЇ</div>
+    </section>
+
+    <section class="page" id="profile">
+      <div class="headrow"><button class="back" onclick="go('home')">← Назад</button><h2>Профіль</h2></div>
+      <div class="card profile"><div class="avatar" id="avatar">♙</div><h2 id="userName">Гість спільноти</h2><div class="tag" id="userTag">@username</div><div class="id" id="userId">Telegram ID: доступний після запуску в Telegram</div></div>
+      <div class="card"><h3>Статус учасника</h3><p id="roleText">Учасник спільноти</p></div>
+      <button class="tile" style="width:100%;margin-bottom:10px" onclick="go('rules')"><span class="tile-icon">≡</span><span><strong>Правила чату</strong><small>Переглянути правила та покарання</small></span></button>
+      <button class="tile" style="width:100%;margin-bottom:10px" onclick="go('about')"><span class="tile-icon">⌂</span><span><strong>Про чат</strong><small>Інформація та адміністрація</small></span></button>
+      <button class="tile" id="adminEntry" style="display:none;width:100%" onclick="go('admin')"><span class="tile-icon">♛</span><span><strong>Адміністративна панель</strong><small>Керування спільнотою</small></span></button>
+    </section>
+
+    <section class="page" id="rules">
+      <div class="headrow"><button class="back" onclick="go('home')">← Назад</button><h2>Правила чату</h2></div>
+      <p class="muted" style="font-size:12px;line-height:1.5;margin:0 0 15px">Дотримуйся правил, поважай учасників і пам’ятай про відповідальність.</p>
+      <div class="card rule open"><button onclick="toggleRule(this)">01. Поважай інших учасників <span>−</span></button><div class="rulebody"><p>Не допускаються образи, цькування, погрози та навмисне провокування конфліктів. Спілкуйся коректно навіть у суперечках.</p><div class="punishment"><b>ПОКАРАННЯ</b><br>1-й раз — попередження<br>2-й раз — мут на 1 день<br>3-й раз — мут на 3 дні<br>Повторне порушення — бан</div></div></div>
+      <div class="card rule"><button onclick="toggleRule(this)">02. Без спаму та флуду <span>＋</span></button><div class="rulebody"><p>Не засмічуй чат повторюваними повідомленнями, масовими згадками чи сторонніми посиланнями.</p><div class="punishment"><b>ПОКАРАННЯ</b><br>Попередження → мут → бан у разі систематичних порушень.</div></div></div>
+      <div class="card rule"><button onclick="toggleRule(this)">03. Заборонений контент <span>＋</span></button><div class="rulebody"><p>Не публікуй незаконний, небезпечний або відверто шкідливий контент. Поважай приватність інших.</p><div class="punishment"><b>ПОКАРАННЯ</b><br>Видалення контенту, мут або бан залежно від ситуації.</div></div></div>
+      <div class="card rule"><button onclick="toggleRule(this)">04. Поважай адміністрацію <span>＋</span></button><div class="rulebody"><p>Не видавай себе за адміністратора та не ігноруй обґрунтовані попередження. Спірні ситуації вирішуються приватно.</p><div class="punishment"><b>ПОКАРАННЯ</b><br>Попередження, тимчасове обмеження або бан за повторні порушення.</div></div></div>
+      <div class="card rule"><button onclick="toggleRule(this)">05. Реклама — лише з дозволу <span>＋</span></button><div class="rulebody"><p>Реклама, запрошення до сторонніх чатів і самопросування дозволені лише за погодженням з адміністрацією.</p><div class="punishment"><b>ПОКАРАННЯ</b><br>Видалення повідомлення та мут; повторно — бан.</div></div></div>
+      <button class="secondary" style="width:100%;margin-top:8px" onclick="go('home')">Повернутися на головну</button>
+      <p class="note">Демонстраційні правила. Остаточні формулювання та покарання можна буде змінити через адмін-панель після підключення API.</p>
+    </section>
+
+    <section class="page" id="about">
+      <div class="headrow"><button class="back" onclick="go('home')">← Назад</button><h2>Про чат</h2></div>
+      <div class="hero" style="min-height:185px;margin-bottom:13px"><div class="eyebrow">Наша спільнота</div><div><h1 style="font-size:27px">Criminalists'<br>Underground</h1><p>Свій простір для спілкування, знайомств і спільних тем.</p></div><button class="primary" onclick="openChat()">↗ Зайти в чат</button></div>
+      <div class="card"><h3>Про спільноту</h3><p>Цей чат створений для комфортного спілкування, обміну думками та знайомств. Будь активним, поважай інших і допомагай зберігати атмосферу спільноти.</p></div>
+      <div class="card"><h3>Основна інформація</h3><p>Тематика: спілкування та спільнота<br>Мова: українська<br>Правила: обов’язкові для всіх учасників</p></div>
+      <h3 class="section-title">Наша адміністрація</h3>
+      <div class="card admin-row"><div class="mini-avatar">♛</div><div><b>Власник чату</b><small>Додамо профіль після налаштування</small></div><span class="admin-tag">ВЛАСНИК</span></div>
+      <div class="card admin-row"><div class="mini-avatar">♙</div><div><b>Адміністратор</b><small>Інформація буде оновлюватися</small></div><span class="admin-tag">АДМІН</span></div>
+      <p class="note">Публічні профілі адміністраторів і справжні аватари з’являться після підключення даних Telegram та налаштування списку адміністрації.</p>
+    </section>
+
+    <section class="page" id="stats">
+      <div class="headrow"><button class="back" onclick="go('home')">← Назад</button><h2>Статистика</h2></div>
+      <div class="stats"><div class="stat"><label>Учасники</label><b id="statMembers">—</b><small>Дані Telegram</small></div><div class="stat"><label>Повідомлення сьогодні</label><b id="statMessages">—</b><small>Після запуску збору</small></div><div class="stat"><label>Активні сьогодні</label><b>—</b><small>Потрібна база подій</small></div><div class="stat"><label>Нові учасники</label><b>—</b><small>За поточний день</small></div></div>
+      <h3 class="section-title">Активність спільноти</h3>
+      <div class="card"><p>Графік активності з’явиться після підключення Telegram webhook та Cloudflare D1. До цього моменту не показуємо вигадані цифри.</p><div style="height:86px;display:flex;align-items:end;gap:7px;margin-top:18px" aria-label="Демонстрація графіка"><i style="height:28%;flex:1;background:#5a2029;border-radius:5px 5px 0 0"></i><i style="height:43%;flex:1;background:#7d202e;border-radius:5px 5px 0 0"></i><i style="height:35%;flex:1;background:#6a202b;border-radius:5px 5px 0 0"></i><i style="height:65%;flex:1;background:#9b2637;border-radius:5px 5px 0 0"></i><i style="height:53%;flex:1;background:#7d202e;border-radius:5px 5px 0 0"></i><i style="height:82%;flex:1;background:#d21f32;border-radius:5px 5px 0 0"></i><i style="height:70%;flex:1;background:#a51f30;border-radius:5px 5px 0 0"></i></div><div class="note">Декоративний приклад, не реальні дані.</div></div>
+    </section>
+
+    <section class="page" id="news">
+      <div class="headrow"><button class="back" onclick="go('home')">← Назад</button><h2>Новини</h2></div>
+      <div class="card news-item"><div class="news-icon">✦</div><div><h3>Вітаємо у спільноті</h3><p>Переглянь правила та будь у курсі важливих оголошень.</p></div></div>
+      <div class="card news-item"><div class="news-icon">♛</div><div><h3>Оголошення адміністрації</h3><p>Тут з’являтимуться конкурси, події та важливі новини чату.</p></div></div>
+      <p class="note">Це стартові оголошення. Після підключення D1 їх можна буде редагувати в адміністративній панелі.</p>
+    </section>
+
+    <section class="page" id="admin">
+      <div class="headrow"><button class="back" onclick="go('profile')">← Профіль</button><h2>Адмін-панель</h2></div>
+      <div class="card"><h3>Керування спільнотою</h3><p>У цьому прототипі форми демонстраційні. Після підключення Worker і D1 зміни будуть зберігатися на сервері.</p></div>
+      <label class="muted" for="newsInput" style="font-size:12px">Текст новинної стрічки</label><textarea class="field" id="newsInput" rows="3">✦ Вітаємо у спільноті · Ознайомся з правилами ·</textarea>
+      <button class="primary" style="width:100%" onclick="saveDemoNews()">Застосувати візуально</button>
+      <h3 class="section-title">Розділи керування</h3>
+      <button class="tile" style="width:100%;margin-bottom:9px" onclick="go('rules')"><span class="tile-icon">≡</span><span><strong>Редагування правил</strong><small>Попередній перегляд правил</small></span></button>
+      <button class="tile" style="width:100%;margin-bottom:9px" onclick="go('about')"><span class="tile-icon">⌂</span><span><strong>Інформація про чат</strong><small>Переглянути сторінку чату</small></span></button>
+      <div class="card"><h3>Доступ</h3><p>Власник і вибрані адміністратори. Реальну перевірку ролей увімкнемо на сервері — приховування кнопки саме по собі не є захистом.</p></div>
+    </section>
+  </main>
+</div>
+<nav class="bottom-nav" aria-label="Основна навігація">
+  <button class="active" data-page="home" onclick="go('home')"><span>⌂</span>Головна</button>
+  <button data-page="stats" onclick="go('stats')"><span>▥</span>Статистика</button>
+  <button data-page="news" onclick="go('news')"><span>▤</span>Новини</button>
+  <button data-page="profile" onclick="go('profile')"><span>♙</span>Профіль</button>
+</nav>
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  try {
+    const u = tg.initDataUnsafe?.user;
+    if (u) {
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Учасник';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userTag').textContent = u.username ? '@' + u.username : 'Ім’я користувача не вказано';
+      document.getElementById('userId').textContent = 'Telegram ID: ' + u.id;
+      if (u.photo_url) document.getElementById('avatar').innerHTML = '<img alt="Аватар" src="'+u.photo_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    }
+  } catch(e) {}
+}
+function go(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleRule(btn) {
+  const card=btn.closest('.rule'); card.classList.toggle('open');
+  const sign=btn.querySelector('span'); if(sign) sign.textContent=card.classList.contains('open')?'−':'＋';
+}
+function openChat(){ window.open('https://t.me/chriminalists','_blank'); }
+function saveDemoNews(){
+  const text=document.getElementById('newsInput').value.trim();
+  if(text){document.getElementById('tickerText').textContent=text+' · ';alert('Текст змінено лише в цьому попередньому перегляді. Після підключення D1 додамо постійне збереження.');}
+}
+</script>
+</body>
+</html>
