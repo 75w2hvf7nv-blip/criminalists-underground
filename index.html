@@ -144,6 +144,43 @@ function saveDemoNews(){
   const text=document.getElementById('newsInput').value.trim();
   if(text){document.getElementById('tickerText').textContent=text+' · ';alert('Текст змінено лише в цьому попередньому перегляді. Після підключення D1 додамо постійне збереження.');}
 }
+  
+const API_URL = 'https://criminalists-api.frbzh5vwgr.workers.dev';
+
+async function loadApiData() {
+  try {
+    const [rulesResponse, newsResponse, configResponse] =
+      await Promise.all([
+        fetch(API_URL + '/api/rules'),
+        fetch(API_URL + '/api/news'),
+        fetch(API_URL + '/api/config')
+      ]);
+
+    const rulesData = await rulesResponse.json();
+    const newsData = await newsResponse.json();
+    const configData = await configResponse.json();
+
+    if (rulesData.ok && Array.isArray(rulesData.rules)) {
+      console.log('Правила завантажено:', rulesData.rules.length);
+    }
+
+    if (newsData.ok) {
+      const ticker = document.getElementById('tickerText');
+      if (ticker && newsData.ticker) {
+        ticker.textContent = newsData.ticker + ' · ';
+      }
+    }
+
+    if (configData.ok) {
+      console.log('Налаштування чату завантажено');
+    }
+  } catch (error) {
+    console.error('Помилка завантаження даних API:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadApiData);
+
 </script>
 </body>
 </html>
